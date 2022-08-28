@@ -1,7 +1,11 @@
 from enum import Enum
 from typing import List, Union
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, root_validator, validator
+
+
+def normalize(name: str) -> str:
+    return ' '.join(word.capitalize() for word in name.strip().split())
 
 
 class Gender(str, Enum):
@@ -38,6 +42,9 @@ class UserBase(BaseModel):
     email: EmailStr
     name: str
     last_name: str
+
+    _normalize_name = validator('name', allow_reuse=True)(normalize)
+    _normalize_last_name = validator('last_name', allow_reuse=True)(normalize)
 
 
 class UserCreate(UserBase):

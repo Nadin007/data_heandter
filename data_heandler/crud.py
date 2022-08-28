@@ -1,13 +1,15 @@
-from datetime import timedelta
 import datetime
+from datetime import timedelta
 from typing import Union
+
 from fastapi.security import OAuth2PasswordBearer
+from jose import jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
-from jose import jwt
 
 from . import models, schemas
 from .config import Config
+from .logger.logger import logger
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -40,8 +42,10 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
 def authenticate_user(db: Session, email: str, password: str):
     user = get_user_by_email(db, email)
     if not user:
+        logger.info(f'User was not found with email - {email}')
         return False
     if not verify_password(password, user.hashed_password):
+        logger.info('Can not verify password.')
         return False
     return user
 
@@ -52,7 +56,7 @@ def get_current_user(db: Session, token: str):
         email = payload.get('email')
         token_data = schemas.TokenData(email=email)
         return get_user_by_email(db, token_data.email)
-    except Exception as e:
+    except Exception:
         return None
 
 

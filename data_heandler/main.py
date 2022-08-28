@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from . import crud, models, schemas
 from .database import SessionLocal, engine
+from .logger.logger import logger
 
 models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
@@ -52,8 +53,10 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
 @app.post('/login/', response_model=schemas.Token)
 def login(data: schemas.LoginData, db: Session = Depends(get_db)):
+    logger.info(f'{data.email} tried to log in.')
     user = crud.authenticate_user(db=db, email=data.email, password=data.password)
     if not user:
+        logger.error('UNAUTHORIZED ACCESS.')
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",

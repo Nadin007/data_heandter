@@ -17,6 +17,15 @@
             ],
             "jinja": true,
             "justMyCode": false
+        },
+        {
+            "name": "Python: PythonFile",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "args": [
+            ],
+            "console": "integratedTerminal"
         }
     ]
 }
